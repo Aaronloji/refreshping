@@ -1,12 +1,13 @@
 // RefreshPing - background (MV3). State per tab lives in chrome.storage.session.
-const KEY = 'tabs'; // { [tabId]: { intervalSec, nextAt } }
+const KEY = 'tabs'; // { [tabId]: { intervalSec, nextAt, keyword?, mode? } }  mode: 'appears' | 'disappears'
 
 async function getAll() { return (await chrome.storage.session.get(KEY))[KEY] || {}; }
 async function setAll(v) { await chrome.storage.session.set({ [KEY]: v }); }
 
-async function start(tabId, intervalSec) {
+async function start(tabId, intervalSec, keyword = '', mode = 'appears') {
   const all = await getAll();
   all[tabId] = { intervalSec, nextAt: Date.now() + intervalSec * 1000 };
+  if (keyword) { all[tabId].keyword = keyword; all[tabId].mode = mode; }
   await setAll(all);
   await chrome.alarms.create('wake', { periodInMinutes: 0.5 });
   tick();
@@ -49,13 +50,54 @@ async function tick() {
   if (!timer) timer = setInterval(tick, 1000);
 }
 
+// ---- Text alert: check the page after every load ----
+function pageHasText(kw) {
+  const body = document.body ? document.body.innerText : '';
+  return body.toLowerCase().includes(kw.toLowerCase());
+}
+
+async function checkText(tabId) {
+  const t = (await getAll())[tabId];
+  if (!t || !t.keyword) return;
+  let found;
+  try {
+    const [res] = await chrome.scripting.executeScript({ target: { tabId }, func: pageHasText, args: [t.keyword] });
+    found = res && res.result;
+  } catch (e) { return; } // no access to this page (chrome://, store, permission denied)
+  const hit = t.mode === 'disappears' ? !found : found;
+  if (!hit) return;
+  await stop(tabId); // stop refreshing so the page stays as it is
+  await chrome.action.setBadgeText({ tabId, text: '!' });
+  await chrome.action.setBadgeBackgroundColor({ tabId, color: '#d93025' });
+  const verb = t.mode === 'disappears' ? 'disappeared' : 'appeared';
+  try {
+    await chrome.notifications.create('rp-' + tabId, {
+      type: 'basic', iconUrl: 'icons/icon128.png', priority: 2, requireInteraction: true,
+      title: 'RefreshPing: text ' + verb,
+      message: '"' + t.keyword + '" ' + verb + ' on the page. Refresh stopped.'
+    });
+  } catch (e) {}
+}
+
+chrome.tabs.onUpdated.addListener((tabId, info) => { if (info.status === 'complete') checkText(tabId); });
+
+chrome.notifications.onClicked.addListener(async id => {
+  if (!id.startsWith('rp-')) return;
+  const tabId = Number(id.slice(3));
+  try {
+    const tab = await chrome.tabs.update(tabId, { active: true });
+    await chrome.windows.update(tab.windowId, { focused: true });
+  } catch (e) {}
+  chrome.notifications.clear(id);
+});
+
 chrome.alarms.onAlarm.addListener(a => { if (a.name === 'wake') tick(); });
 chrome.runtime.onStartup.addListener(tick);
 chrome.tabs.onRemoved.addListener(stop);
 
 chrome.runtime.onMessage.addListener((msg, _s, reply) => {
   (async () => {
-    if (msg.type === 'start') await start(msg.tabId, msg.intervalSec);
+    if (msg.type === 'start') await start(msg.tabId, msg.intervalSec, msg.keyword, msg.mode);
     else if (msg.type === 'stop') await stop(msg.tabId);
     else if (msg.type === 'status') {
       const t = (await getAll())[msg.tabId];

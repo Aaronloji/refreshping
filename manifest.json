@@ -1,9 +1,15 @@
 {
   "manifest_version": 3,
   "name": "RefreshPing - Auto Refresh with Text Alerts",
-  "version": "0.1.0",
-  "description": "Auto refresh any tab at your interval. Countdown on the icon. Pay once for text alerts, no subscription.",
-  "permissions": ["storage", "alarms", "activeTab"],
-  "action": { "default_popup": "popup.html", "default_title": "RefreshPing" },
+  "version": "0.2.0",
+  "description": "Auto refresh any tab at your interval. Countdown on the icon. Get alerted when a text appears or disappears.",
+  "permissions": ["storage", "alarms", "activeTab", "scripting", "notifications"],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "RefreshPing",
+    "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png" }
+  },
   "background": { "service_worker": "background.js" }
 }
