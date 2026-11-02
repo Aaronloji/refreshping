@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  body{font:14px system-ui,sans-serif;width:240px;margin:12px}
+  label{display:block;margin-bottom:6px}
+  input,select{font:inherit;padding:4px}
+  input{width:70px}
+  button{font:inherit;width:100%;padding:8px;margin-top:10px;cursor:pointer}
+  #status{margin-top:8px;color:#555;min-height:1.2em}
+</style>
+<label>Refresh every
+  <input id="val" type="number" min="1" value="30">
+  <select id="unit"><option value="1">seconds</option><option value="60">minutes</option></select>
+</label>
+<button id="toggle">Start</button>
+<div id="status"></div>
+<script src="popup.js"></script>
