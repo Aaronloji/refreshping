@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
   "name": "RefreshPing - Auto Refresh with Text Alerts",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Auto refresh any tab at your interval. Countdown on the icon. Get alerted when a text appears or disappears.",
-  "permissions": ["storage", "alarms", "activeTab", "scripting", "notifications"],
+  "permissions": ["storage", "alarms", "activeTab", "scripting", "notifications", "offscreen"],
+  "host_permissions": ["https://api.lemonsqueezy.com/*"],
   "optional_host_permissions": ["https://*/*", "http://*/*"],
   "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
   "action": {

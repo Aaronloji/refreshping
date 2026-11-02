@@ -1,14 +1,25 @@
 <!doctype html>
 <meta charset="utf-8">
 <style>
-  body{font:14px system-ui,sans-serif;width:260px;margin:12px}
+  body{font:14px system-ui,sans-serif;width:280px;margin:12px;color:#202124}
   label{display:block;margin-bottom:8px}
   input,select{font:inherit;padding:4px;box-sizing:border-box}
-  #val{width:70px}
-  #kw{width:100%;margin-top:4px}
-  .small{font-size:12px;color:#555}
-  button{font:inherit;width:100%;padding:8px;margin-top:6px;cursor:pointer}
-  #status{margin-top:8px;color:#555;min-height:1.2em}
+  input[type=number]{width:64px}
+  input[type=time]{width:118px}
+  #kw,#key{width:100%;margin-top:4px}
+  .small{font-size:12px;color:#5f6368}
+  .tag{font-size:11px;background:#fbbc04;color:#202124;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:middle}
+  fieldset{border:1px solid #dadce0;border-radius:6px;margin:10px 0;padding:8px 10px}
+  legend{font-weight:600;padding:0 4px}
+  fieldset.locked{opacity:.55}
+  button{font:inherit;padding:7px;cursor:pointer}
+  #toggle{width:100%;margin-top:4px;background:#1a73e8;color:#fff;border:0;border-radius:6px;font-weight:600}
+  #status{margin-top:8px;color:#5f6368;min-height:1.2em}
+  #status.err{color:#d93025}
+  #lic{border-top:1px solid #dadce0;margin-top:10px;padding-top:8px}
+  #lic .row{display:flex;gap:6px;margin-top:6px}
+  #lic .row button{flex:1}
+  a{color:#1a73e8}
 </style>
 <label>Refresh every
   <input id="val" type="number" min="1" value="30">
@@ -19,6 +30,29 @@
   <input id="kw" type="text" placeholder="e.g. In stock (optional)">
   <span class="small">Refresh stops when the alert fires.</span>
 </label>
+
+<fieldset id="pro">
+  <legend>Pro<span class="tag" id="protag">$9.99 once</span></legend>
+  <label>Randomize interval &plusmn; <input id="jit" type="number" min="0" max="90" value="0"> %</label>
+  <label><input id="hoursOn" type="checkbox"> Only between
+    <input id="from" type="time" value="09:00"> and <input id="to" type="time" value="17:00"></label>
+  <label><input id="sound" type="checkbox"> Play sound on alert <a href="#" id="test" class="small">test</a></label>
+  <span class="small">Pro also watches text on unlimited tabs.</span>
+</fieldset>
+
 <button id="toggle">Start</button>
 <div id="status"></div>
+
+<div id="lic">
+  <div id="free">
+    <a href="#" id="buy">Get RefreshPing Pro: $9.99, pay once</a>
+    <input id="key" type="text" placeholder="Paste your license key">
+    <div class="row"><button id="act">Activate</button></div>
+  </div>
+  <div id="paid" hidden>
+    <span>Pro active &#10003;</span>
+    <div class="row"><button id="deact">Remove license from this browser</button></div>
+  </div>
+</div>
+<script src="config.js"></script>
 <script src="popup.js"></script>
